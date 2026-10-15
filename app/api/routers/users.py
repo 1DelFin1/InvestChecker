@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from app.api.deps import SessionDep, ensure_user_access, get_current_active_auth_user
-from app.schemas import UserUpdateSchema, UserInDBSchema, UserCreateSchema
+from app.schemas import UserUpdateSchema, UserInDBSchema
 from app.services import UserService
 
 users_router = APIRouter(prefix="/api/v1/users", tags=["users"])
@@ -17,8 +17,8 @@ async def get_current_user(
 
 
 @users_router.post("")
-async def create_user(session: SessionDep, user_data: UserCreateSchema):
-    user = await UserService.create(session, user_data)
+async def create_user(session: SessionDep, email: str):
+    user = await UserService.create(session, email)
     return user
 
 

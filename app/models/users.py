@@ -11,9 +11,8 @@ class UserModel(Base, TimestampMixin):
     __tablename__ = "users"
 
     id: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
-    first_name: Mapped[str] = mapped_column(String(100))
-    last_name: Mapped[str] = mapped_column(String(100))
+    first_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    last_name: Mapped[str] = mapped_column(String(100), nullable=True)
     email: Mapped[str] = mapped_column(String(255), index=True, unique=True)
-    hashed_password: Mapped[str] = mapped_column(String)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)

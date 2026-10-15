@@ -11,10 +11,6 @@ class UserBaseSchema(BaseModel):
     is_superuser: bool = False
 
 
-class UserCreateSchema(UserBaseSchema):
-    password: str = Field(max_length=40)
-
-
 class UserUpdateSchema(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
@@ -27,17 +23,5 @@ class UserInDBSchema(UserBaseSchema):
     hashed_password: str
 
 
-class RefreshRequest(BaseModel):
-    refresh_token: str
-
-
-class TokenResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "Bearer"
-    expires_in: int
-    user_id: UUID
-
-class LoginRequest(BaseModel):
+class MagicLinkRequestSchema(BaseModel):
     email: EmailStr
-    password: str

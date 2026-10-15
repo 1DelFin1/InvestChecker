@@ -1,14 +1,14 @@
 from datetime import timedelta, datetime, timezone
 
 import jwt
-from fastapi import Response
+from fastapi import Response, BackgroundTasks, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.request_form import OAuth2EmailRequestForm
 from app.core.config import settings
-from app.core.security import verify_password
 from app.exceptions import INCORRECT_DATA_EXCEPTION
 from app.services import UserService
+from app.services.task import TasksService
+from app.schemas import MagicLinkRequestSchema
 
 
 class AuthenticatorService:
@@ -45,26 +45,40 @@ class AuthenticatorService:
 
 class AuthorizationService:
     @staticmethod
-    async def login(
+    async def request(
         session: AsyncSession,
-        form_data: OAuth2EmailRequestForm,
-        response: Response,
+        user_data: MagicLinkRequestSchema,
+        background_tasks: BackgroundTasks,
     ):
-        user = await UserService.get_by_email(session, form_data.username)
+        user = await UserService.get_by_email(session, user_data.email)
         if not user:
-            raise INCORRECT_DATA_EXCEPTION
-        if not verify_password(form_data.password, user.hashed_password):
-            raise INCORRECT_DATA_EXCEPTION
+            user = await UserService.create(session, user_data.email)
 
         access_payload = {
             "sub": str(user.id),
             "email": user.email,
-            "account_type": "user",
+            "is_superuser": user.is_superuser,
+            "type": "magic_link",
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.jwt.ACCESS_TOKEN_EXPIRE_MINUTES),
         }
 
         token = AuthenticatorService.create_jwt_token(access_payload)
+        link = f"{settings.app.FRONTEND_URL}/auth/verify?token={token}"
+        background_tasks.add_task(TasksService.send_magic_link_email, user_data.email, link)
+
+
+    @classmethod
+    async def verify(cls, token: str, response: Response):
+        try:
+            payload = AuthenticatorService.decode_jwt_token(token)
+        except jwt.InvalidTokenError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+
+        if payload["type"] != "magic_link":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token type")
+
         response.set_cookie(
-            key="token",
+            key="access_token",
             value=token,
             max_age=int(timedelta(days=7).total_seconds()),
             httponly=False,

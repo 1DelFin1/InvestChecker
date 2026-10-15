@@ -15,6 +15,7 @@ class Conf(BaseSettings):
 
 class AppConfig(Conf):
     IS_PROD: bool = False
+    FRONTEND_URL: str = "http://localhost:3000"
 
 
 class CORSConfig(Conf):

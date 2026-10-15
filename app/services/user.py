@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import get_password_hash
 from app.exceptions import USER_NOT_FOUND_EXCEPTION, USER_ALREADY_CREATED
 from app.models.users import UserModel
-from app.schemas import UserCreateSchema, UserUpdateSchema
+from app.schemas import UserUpdateSchema
 
 
 class UserService:
@@ -21,13 +21,11 @@ class UserService:
         return await session.scalar(stmt)
 
     @classmethod
-    async def create(cls, session: AsyncSession, account_data: UserCreateSchema) -> UserModel:
-        if await cls.get_by_email(session, account_data.email):
+    async def create(cls, session: AsyncSession, email: str) -> UserModel:
+        if await cls.get_by_email(session, email):
             raise USER_ALREADY_CREATED
 
-        data = account_data.model_dump(exclude={"password"})
-        data["hashed_password"] = get_password_hash(account_data.password)
-        new_account = UserModel(**data)
+        new_account = UserModel(email=email)
 
         session.add(new_account)
         await session.commit()
