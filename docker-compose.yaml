@@ -1,0 +1,57 @@
+services:
+  server:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+#    depends_on:
+#      rabbitmq:
+#        condition: service_healthy
+    networks:
+      - backend_network
+
+  db:
+    image: "postgres:17"
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend_network
+
+#  rabbitmq:
+#    image: "rabbitmq:3.13-management"
+#    restart: always
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    env_file:
+#      - .env
+#    environment:
+#      RABBITMQ_DEFAULT_USER: ${RABBITMQ__USERNAME}
+#      RABBITMQ_DEFAULT_PASS: ${RABBITMQ__PASSWORD}
+#    healthcheck:
+#      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    networks:
+#      - backend_network
+
+volumes:
+  pgdata:
+
+networks:
+  backend_network:
+    driver: bridge
