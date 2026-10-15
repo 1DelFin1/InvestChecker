@@ -18,7 +18,7 @@ async def request(
 
 
 @auth_router.get("/verify")
-async def request(
+async def verify(
     token: str,
     response: Response,
 ):
