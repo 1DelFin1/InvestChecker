@@ -23,7 +23,3 @@ async def login(
 def logout(response: Response):
     response.delete_cookie("token")
     return {"ok": True, "message": "Successfully logged out"}
-
-# @auth_router.post("/refresh")
-# async def refresh_tokens(session: SessionDep, data: RefreshRequest):
-#     return await AuthorizationService.refresh(session, data.refresh_token)
