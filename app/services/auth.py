@@ -4,7 +4,6 @@ from datetime import timedelta, datetime, timezone
 import jwt
 from jwt import InvalidTokenError
 from fastapi import Response, Request
-from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import SessionDep
@@ -12,7 +11,6 @@ from app.api.request_form import OAuth2EmailRequestForm
 from app.core.config import settings
 from app.core.security import verify_password
 from app.exceptions import USER_UNAUTHORIZED_EXCEPTION, INVALID_TOKEN_EXCEPTION, USER_NOT_FOUND_EXCEPTION, INCORRECT_DATA_EXCEPTION
-from app.models import RefreshTokenModel
 from app.services import UserService
 
 
