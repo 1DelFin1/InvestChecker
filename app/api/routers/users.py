@@ -2,10 +2,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from app.api.deps import SessionDep
+from app.api.deps import SessionDep, ensure_user_access, get_current_active_auth_user
 from app.schemas import UserUpdateSchema, UserInDBSchema, UserCreateSchema
 from app.services import UserService
-from app.services.auth import get_current_active_auth_user
 
 users_router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -24,20 +23,20 @@ async def create_user(session: SessionDep, user_data: UserCreateSchema):
 
 
 @users_router.get("/{user_id}")
-async def get_user_by_id(session: SessionDep, user_id: UUID):
+async def get_user_by_id(session: SessionDep, user_id: UUID, _ = Depends(ensure_user_access)):
     user = await UserService.get_by_id(session, user_id)
     return user
 
 
 @users_router.patch("/{user_id}")
 async def update_user(
-    session: SessionDep, user_data: UserUpdateSchema, user_id: UUID
+    session: SessionDep, user_data: UserUpdateSchema, user_id: UUID, _ = Depends(ensure_user_access)
 ):
     user = await UserService.update(session, user_data, user_id)
     return user
 
 
 @users_router.delete("/{user_id}")
-async def delete_user(session: SessionDep, user_id: UUID):
+async def delete_user(session: SessionDep, user_id: UUID, _ = Depends(ensure_user_access)):
     user = await UserService.delete(session, user_id)
     return user
