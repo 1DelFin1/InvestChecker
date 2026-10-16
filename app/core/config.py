@@ -64,6 +64,7 @@ class Settings(BaseSettings):
     )
     app: AppConfig = AppConfig()
     cors: CORSConfig = CORSConfig()
+    integration: IntegrationConfig = IntegrationConfig()
     pg_database: PostgresConfig = PostgresConfig()
     jwt: JwtConfig = JwtConfig()
 
