@@ -26,6 +26,7 @@ class CORSConfig(Conf):
 
 class IntegrationConfig(Conf):
     API_KEY_POD: str = ""
+    POD_URL: str = "https://opendata.mkrf.ru/v2"
 
 
 class PostgresConfig(Conf):
