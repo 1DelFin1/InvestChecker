@@ -24,6 +24,10 @@ class CORSConfig(Conf):
     CORS_HEADERS: list[str] = ["*"]
 
 
+class IntegrationConfig(Conf):
+    API_KEY_POD: str = ""
+
+
 class PostgresConfig(Conf):
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
